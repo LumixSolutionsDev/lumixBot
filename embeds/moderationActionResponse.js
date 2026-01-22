@@ -6,7 +6,6 @@ const {
     ButtonStyle,
     ContainerBuilder,
     SeparatorSpacingSize,
-    TextDisplayBuilder,
 } = discord;
 
 const BUTTON_LINKS = [
@@ -15,6 +14,8 @@ const BUTTON_LINKS = [
     { label: "Game Panel", url: "https://panel.lumixsolutions.org" },
 ];
 
+const DEFAULT_ACCENT = 16731212;
+
 function formatUser(user) {
     if (!user) return "Unknown";
     const tag = user.tag || user.username || user.id || "Unknown";
@@ -22,16 +23,11 @@ function formatUser(user) {
     return `${tag}${id}`;
 }
 
-function buildLinkButtonRow() {
-    const row = new ActionRowBuilder();
+function configureLinkButtons(row) {
     BUTTON_LINKS.forEach(({ label, url }) => {
         row.addComponents(new ButtonBuilder().setLabel(label).setStyle(ButtonStyle.Link).setURL(url));
     });
     return row;
-}
-
-function buildTextDisplay(content) {
-    return new TextDisplayBuilder().setContent(content);
 }
 
 function buildAdditionalFieldsBlock(additionalFields = []) {
@@ -57,7 +53,7 @@ export function buildModerationActionResponse({ action, color, target, moderator
     const versionText = version ? `\`${version}\`` : "`Unknown`";
 
     const container = new ContainerBuilder()
-        .setAccentColor(color ?? 0x2f3136)
+        .setAccentColor(color ?? DEFAULT_ACCENT)
         .addTextDisplayComponents((text) =>
             text.setContent(`### Lumix Action • ${action}\n✅ **${action} completed successfully**`)
         )
@@ -77,7 +73,7 @@ export function buildModerationActionResponse({ action, color, target, moderator
         .addTextDisplayComponents((text) =>
             text.setContent(`Maintened By Lumix Solutions • Version ${versionText}`)
         )
-        .addActionRowComponents((row) => row.setComponents(buildLinkButtonRow().components));
+        .addActionRowComponents((row) => configureLinkButtons(row));
 
     return {
         components: [container],

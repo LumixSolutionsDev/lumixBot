@@ -1,4 +1,6 @@
-import { SlashCommandBuilder } from "discord.js";
+import { MessageFlags, SlashCommandBuilder } from "discord.js";
+import { buildModerationActionResponse } from "../embeds/moderationActionResponse.js";
+import { getLumixVersion } from "../utils/getLumixVersion.js";
 import { sendModerationLog } from "../utils/sendModerationLog.js";
 import { requireGuild, requireMember, requirePerms, ensureCanActOnTarget, normalizeReason, PERMS } from "../utils/moderationGuards.js";
 
@@ -45,5 +47,16 @@ export async function execute(interaction) {
         channel: interaction.channel,
     });
 
-    return interaction.reply({ content: `Removed timeout from ${targetUser.tag}.`, ephemeral: true });
+    const version = await getLumixVersion();
+    const response = buildModerationActionResponse({
+        action: "Untimeout",
+        color: 0x2ecc71,
+        target: targetUser,
+        moderator: interaction.user,
+        reason,
+        channel: interaction.channel,
+        version,
+    });
+
+    return interaction.reply({ ...response, flags: MessageFlags.IsComponentsV2, ephemeral: true });
 }

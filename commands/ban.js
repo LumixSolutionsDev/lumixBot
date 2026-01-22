@@ -62,7 +62,6 @@ export async function execute(interaction) {
     const version = await getLumixVersion();
     const response = buildModerationActionResponse({
         action: "Ban",
-        color: 0xe74c3c,
         target: targetUser,
         moderator: interaction.user,
         reason,

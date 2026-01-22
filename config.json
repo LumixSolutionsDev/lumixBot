@@ -3,5 +3,6 @@
     "guildId": "1449136894830055556",
     "autoroleId": "1454281349190909952",
     "welcomeChannelId": "1454280466814337218",
-    "logChannelId": ""
+    "logChannelId": "",
+    "dmForwardChannelId": ""
 }

@@ -1,4 +1,6 @@
-import { SlashCommandBuilder } from "discord.js";
+import { MessageFlags, SlashCommandBuilder } from "discord.js";
+import { buildModerationActionResponse } from "../embeds/moderationActionResponse.js";
+import { getLumixVersion } from "../utils/getLumixVersion.js";
 import { sendModerationLog } from "../utils/sendModerationLog.js";
 import { requireGuild, requireMember, requirePerms, normalizeReason, PERMS } from "../utils/moderationGuards.js";
 
@@ -39,5 +41,22 @@ export async function execute(interaction) {
         channel: interaction.channel,
     });
 
-    return interaction.reply({ content: `Unbanned ${ban?.user?.tag || userId}.`, ephemeral: true });
+    const version = await getLumixVersion();
+    const response = buildModerationActionResponse({
+        action: "Unban",
+        color: 0x2ecc71,
+        target: ban?.user ?? { id: userId, tag: `Unknown (${userId})` },
+        moderator: interaction.user,
+        reason,
+        channel: interaction.channel,
+        version,
+        additionalFields: [
+            {
+                name: "User ID",
+                value: userId,
+            },
+        ],
+    });
+
+    return interaction.reply({ ...response, flags: MessageFlags.IsComponentsV2, ephemeral: true });
 }

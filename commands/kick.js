@@ -50,7 +50,6 @@ export async function execute(interaction) {
     const version = await getLumixVersion();
     const response = buildModerationActionResponse({
         action: "Kick",
-        color: 0xe67e22,
         target: targetUser,
         moderator: interaction.user,
         reason,

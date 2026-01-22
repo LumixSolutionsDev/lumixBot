@@ -22,7 +22,7 @@ function formatMetrics({ ws, api }) {
     return [`> **WebSocket:** \`${ws}ms\``, `> **Round Trip:** \`${api}ms\``].join("\n");
 }
 
-export const data = new SlashCommandBuilder().setName("ping").setDescription("Shows the bot latency in Components V2 style.");
+export const data = new SlashCommandBuilder().setName("ping").setDescription("Shows the bot latency.");
 
 export async function execute(interaction) {
     const now = Date.now();

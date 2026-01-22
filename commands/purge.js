@@ -1,4 +1,6 @@
-import { SlashCommandBuilder } from "discord.js";
+import { MessageFlags, SlashCommandBuilder } from "discord.js";
+import { buildModerationActionResponse } from "../embeds/moderationActionResponse.js";
+import { getLumixVersion } from "../utils/getLumixVersion.js";
 import { sendModerationLog } from "../utils/sendModerationLog.js";
 import { requireGuild, requireMember, requirePerms, normalizeReason, PERMS } from "../utils/moderationGuards.js";
 
@@ -45,5 +47,22 @@ export async function execute(interaction) {
         reason,
     });
 
-    return interaction.editReply({ content: `Deleted ${deleted.size} message(s).` });
+    const version = await getLumixVersion();
+    const response = buildModerationActionResponse({
+        action: "Purge",
+        color: 0x95a5a6,
+        moderator: interaction.user,
+        target: null,
+        channel: interaction.channel,
+        reason,
+        version,
+        additionalFields: [
+            {
+                name: "Messages Deleted",
+                value: deleted.size ? String(deleted.size) : "0",
+            },
+        ],
+    });
+
+    return interaction.editReply({ ...response, flags: MessageFlags.IsComponentsV2 });
 }
