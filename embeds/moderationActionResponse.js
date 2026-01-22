@@ -57,7 +57,7 @@ export function buildModerationActionResponse({ action, color, target, moderator
     const container = new ContainerBuilder()
         .setAccentColor(color ?? 0x2f3136)
         .addTextDisplayComponents((text) =>
-            text.setContent(`### Components V2 • ${action}\n✅ **${action} completed successfully**`)
+            text.setContent(`### Lumix Action • ${action}\n✅ **${action} completed successfully**`)
         )
         .addSeparatorComponents((separator) => separator.setDivider(true).setSpacing(SeparatorSpacingSize.Small))
         .addTextDisplayComponents((text) => text.setContent(summaryBlock))
