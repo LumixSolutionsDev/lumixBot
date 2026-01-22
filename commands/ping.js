@@ -1,4 +1,5 @@
-import {
+import discord from "discord.js";
+const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
@@ -7,7 +8,7 @@ import {
     SeparatorSpacingSize,
     SlashCommandBuilder,
     TextDisplayBuilder,
-} from "discord.js";
+} = discord;
 import { getLumixVersion } from "../utils/getLumixVersion.js";
 
 function buildLinkRow() {
@@ -32,7 +33,7 @@ export async function execute(interaction) {
     const container = new ContainerBuilder()
         .setAccentColor(0x5865f2)
         .addTextDisplayComponents((text) =>
-            text.setContent("### Components V2 • Ping\nChecking Lumix infrastructure responsiveness")
+            text.setContent("### Lumix Network Pulse\nChecking infrastructure responsiveness")
         )
         .addSeparatorComponents((separator) => separator.setDivider(true).setSpacing(SeparatorSpacingSize.Small))
         .addTextDisplayComponents((text) => text.setContent(formatMetrics({ ws: wsPing, api: apiPing })))

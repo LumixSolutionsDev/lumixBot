@@ -1,11 +1,13 @@
-import {
+import discord from "discord.js";
+
+const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
     ContainerBuilder,
     SeparatorSpacingSize,
     TextDisplayBuilder,
-} from "discord.js";
+} = discord;
 
 const BUTTON_LINKS = [
     { label: "Lumix Website", url: "https://lumixsolutions.org" },
