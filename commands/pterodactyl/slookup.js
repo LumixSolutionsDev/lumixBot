@@ -1,5 +1,5 @@
 import discord from "discord.js";
-import { getServers } from "../../utils/pterodactylApi.js";
+import { getServers, formatMegabytes } from "../../utils/pterodactylApi.js";
 import { getLumixVersion } from "../../utils/getLumixVersion.js";
 
 const {
@@ -46,34 +46,45 @@ function buildContainer({ title, sections, footer }) {
     return container;
 }
 
-function formatServer(server) {
-    const allocations = server.relationships?.allocations?.data || [];
-    const primaryAllocation = allocations.find((alloc) => alloc.attributes?.is_default) || allocations[0];
-    const primaryPort = primaryAllocation?.attributes
-        ? `${primaryAllocation.attributes.ip}:${primaryAllocation.attributes.port}`
-        : "Unknown";
+function formatAllocation(allocation) {
+    if (!allocation?.attributes) return "Unknown";
+    const attrs = allocation.attributes;
+    const host = attrs.alias || attrs.ip || "Unknown";
+    return `${host}:${attrs.port}`;
+}
 
+function buildLimitsBlock(server) {
     const limits = server.limits || {};
     const featureLimits = server.feature_limits || {};
+    const cpu = `${limits.cpu ?? 0}%`;
+    const ram = formatMegabytes(limits.memory);
+    const disk = formatMegabytes(limits.disk);
+    const lines = [
+        `CPU   : ${cpu}`,
+        `RAM   : ${ram}`,
+        `Disk  : ${disk}`,
+        `Slots : DB ${featureLimits.databases ?? 0} • Alloc ${featureLimits.allocations ?? 0} • Backup ${featureLimits.backups ?? 0}`,
+    ];
+    return ["```yaml", ...lines, "```"].join("\n");
+}
+
+function summarizeServer(server) {
+    const allocations = server.relationships?.allocations?.data || [];
+    const primaryAllocation = allocations.find((alloc) => alloc.attributes?.is_default) || allocations[0];
+    const primaryEndpoint = formatAllocation(primaryAllocation);
+
+    const meta = [
+        `> Identifier: \`${server.identifier}\` • UUID: \`${server.uuid}\``,
+        `> Node: **${server.node}** • Owner: **${server.user}**`,
+        `> Primary Allocation: **${primaryEndpoint}**`,
+        `> Description: ${server.description?.trim() || "*None provided*"}`,
+        `> Status: **${server.status || "unknown"}** • Suspended: **${server.suspended ? "Yes" : "No"}**`,
+    ];
 
     return [
         `**${server.name}** (ID ${server.id})`,
-        `Identifier: ${server.identifier}`,
-        `UUID: ${server.uuid}`,
-        `Node ID: ${server.node}`,
-        `Owner ID: ${server.user}`,
-        `Description: ${server.description || "*None provided*"}`,
-        `Primary Allocation: ${primaryPort}`,
-        `Limits: CPU ${limits.cpu ?? "n/a"}% • RAM ${limits.memory ?? "n/a"} MB • Disk ${limits.disk ?? "n/a"} MB`,
-        `Feature Limits: Databases ${featureLimits.databases ?? 0} • Allocations ${featureLimits.allocations ?? 0} • Backups ${featureLimits.backups ?? 0}`,
-    ].join("\n");
-}
-
-function displayServer(server) {
-    return [
-        formatServer(server),
-        `Suspended: ${server.suspended ? "Yes" : "No"}`,
-        `Status: ${server.status || "unknown"}`,
+        ...meta,
+        buildLimitsBlock(server),
     ].join("\n");
 }
 
@@ -114,7 +125,7 @@ export async function execute(interaction) {
             return interaction.editReply({ content: `No server found for query \\"${query}\\".` });
         }
 
-        const sections = [displayServer(server)];
+        const sections = [summarizeServer(server)];
         const container = buildContainer({
             title: `Server Lookup • ${server.name}`,
             sections,
