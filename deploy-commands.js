@@ -14,18 +14,26 @@ const config = require("./config.json");
     try {
         const commands = [];
         const commandsPath = path.join(process.cwd(), "commands");
-        if (fs.existsSync(commandsPath)) {
-            const commandFiles = fs
-                .readdirSync(commandsPath)
-                .filter((file) => file.endsWith(".js"));
 
-            for (const file of commandFiles) {
-                const filePath = path.join(commandsPath, file);
-                const module = await import(pathToFileURL(filePath).href);
+        async function collectCommandsFrom(dir) {
+            const entries = fs.readdirSync(dir, { withFileTypes: true });
+            for (const entry of entries) {
+                const entryPath = path.join(dir, entry.name);
+                if (entry.isDirectory()) {
+                    await collectCommandsFrom(entryPath);
+                    continue;
+                }
+
+                if (!entry.isFile() || !entry.name.endsWith(".js")) continue;
+                const module = await import(pathToFileURL(entryPath).href);
                 const cmd = module.data || module.default?.data;
                 if (!cmd) continue;
                 commands.push(cmd.toJSON ? cmd.toJSON() : cmd);
             }
+        }
+
+        if (fs.existsSync(commandsPath)) {
+            await collectCommandsFrom(commandsPath);
         }
 
         const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);

@@ -25,14 +25,18 @@ client.config = config;
 
 client.commands = new Collection();
 
-async function loadCommands() {
-    const commandsPath = path.join(process.cwd(), "commands");
-    if (!fs.existsSync(commandsPath)) return;
+async function loadCommandsFrom(dir) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+        const entryPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            await loadCommandsFrom(entryPath);
+            continue;
+        }
 
-    const commandFiles = fs.readdirSync(commandsPath).filter((f) => f.endsWith(".js"));
-    for (const file of commandFiles) {
-        const filePath = path.join(commandsPath, file);
-        const module = await import(pathToFileURL(filePath).href);
+        if (!entry.isFile() || !entry.name.endsWith(".js")) continue;
+
+        const module = await import(pathToFileURL(entryPath).href);
         const data = module.data || module.default?.data;
         const execute = module.execute || module.default?.execute;
         if (!data || !execute) continue;
@@ -40,6 +44,12 @@ async function loadCommands() {
         if (!name) continue;
         client.commands.set(name, { data, execute });
     }
+}
+
+async function loadCommands() {
+    const commandsPath = path.join(process.cwd(), "commands");
+    if (!fs.existsSync(commandsPath)) return;
+    await loadCommandsFrom(commandsPath);
 }
 
 async function init() {

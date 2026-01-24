@@ -4,5 +4,14 @@
     "autoroleId": "1454281349190909952",
     "welcomeChannelId": "1454280466814337218",
     "logChannelId": "",
-    "dmForwardChannelId": "1463820688585654465"
+    "dmForwardChannelId": "1463820688585654465",
+    "pterodactyl": {
+        "baseUrl": "https://panel.lumixsolutions.org/",
+        "apiKey": "ptla_J6V5v3OYrVkgzx7Tn7DhCBH2Ccm6UEMUZIsW65H5rjw",
+        "thresholds": {
+            "cpu": 80,
+            "memory": 85,
+            "disk": 90
+        }
+    }
 }
